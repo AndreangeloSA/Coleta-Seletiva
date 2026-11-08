@@ -127,4 +127,14 @@ public class Solicitacao {
         historicos.add(h);
         h.setSolicitacao(this);
     }
+
+    private LocalDateTime dataAtualizacao;
+
+    public LocalDateTime getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
+    }
 }
