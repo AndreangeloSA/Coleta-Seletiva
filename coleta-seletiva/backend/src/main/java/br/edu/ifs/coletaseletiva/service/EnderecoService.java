@@ -1,6 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
-import br.edu.ifs.coletaseletiva.dto.DadosEndereco;
+import br.edu.ifs.coletaseletiva.dto.EnderecoRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.Endereco;
 import br.edu.ifs.coletaseletiva.repository.EnderecoRepository;
 import java.util.List;
@@ -20,7 +20,7 @@ public class EnderecoService {
         this.moradores = moradores;
     }
 
-    public Endereco cadastrar(Long moradorId, DadosEndereco dados) {
+    public Endereco cadastrar(Long moradorId, EnderecoRequestDTO dados) {
         return enderecos.save(new Endereco(moradores.consultar(moradorId), dados));
     }
 
@@ -30,7 +30,7 @@ public class EnderecoService {
         return enderecos.findByMorador_IdOrderById(moradorId);
     }
 
-    public Endereco atualizar(Long id, DadosEndereco dados) {
+    public Endereco atualizar(Long id, EnderecoRequestDTO dados) {
         Endereco endereco = enderecos.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço não encontrado"));
         endereco.atualizar(dados);

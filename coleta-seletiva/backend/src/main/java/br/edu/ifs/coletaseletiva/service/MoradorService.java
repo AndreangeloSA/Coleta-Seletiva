@@ -1,6 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
-import br.edu.ifs.coletaseletiva.dto.DadosMorador;
+import br.edu.ifs.coletaseletiva.dto.MoradorRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.Morador;
 import br.edu.ifs.coletaseletiva.repository.MoradorRepository;
 import org.hibernate.exception.ConstraintViolationException;
@@ -19,7 +19,7 @@ public class MoradorService {
         this.moradores = moradores;
     }
 
-    public Morador cadastrar(DadosMorador dados) {
+    public Morador cadastrar(MoradorRequestDTO dados) {
         return salvar(new Morador(), dados);
     }
 
@@ -29,11 +29,11 @@ public class MoradorService {
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Morador não encontrado"));
     }
 
-    public Morador atualizar(Long id, DadosMorador dados) {
+    public Morador atualizar(Long id, MoradorRequestDTO dados) {
         return salvar(consultar(id), dados);
     }
 
-    private Morador salvar(Morador morador, DadosMorador dados) {
+    private Morador salvar(Morador morador, MoradorRequestDTO dados) {
         morador.atualizar(dados);
         try {
             return moradores.saveAndFlush(morador);

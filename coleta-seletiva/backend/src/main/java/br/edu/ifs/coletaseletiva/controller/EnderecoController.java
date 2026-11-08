@@ -1,7 +1,7 @@
 package br.edu.ifs.coletaseletiva.controller;
 
-import br.edu.ifs.coletaseletiva.dto.DadosEndereco;
-import br.edu.ifs.coletaseletiva.entity.Endereco;
+import br.edu.ifs.coletaseletiva.dto.EnderecoRequestDTO;
+import br.edu.ifs.coletaseletiva.dto.EnderecoResponseDTO;
 import br.edu.ifs.coletaseletiva.service.EnderecoService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -19,17 +19,17 @@ public class EnderecoController {
 
     @PostMapping("/moradores/{moradorId}/enderecos")
     @ResponseStatus(HttpStatus.CREATED)
-    public Endereco cadastrar(@PathVariable Long moradorId, @Valid @RequestBody DadosEndereco dados) {
-        return enderecos.cadastrar(moradorId, dados);
+    public EnderecoResponseDTO cadastrar(@PathVariable Long moradorId, @Valid @RequestBody EnderecoRequestDTO dados) {
+        return new EnderecoResponseDTO(enderecos.cadastrar(moradorId, dados));
     }
 
     @GetMapping("/moradores/{moradorId}/enderecos")
-    public List<Endereco> listar(@PathVariable Long moradorId) {
-        return enderecos.listar(moradorId);
+    public List<EnderecoResponseDTO> listar(@PathVariable Long moradorId) {
+        return enderecos.listar(moradorId).stream().map(EnderecoResponseDTO::new).toList();
     }
 
     @PutMapping("/enderecos/{id}")
-    public Endereco atualizar(@PathVariable Long id, @Valid @RequestBody DadosEndereco dados) {
-        return enderecos.atualizar(id, dados);
+    public EnderecoResponseDTO atualizar(@PathVariable Long id, @Valid @RequestBody EnderecoRequestDTO dados) {
+        return new EnderecoResponseDTO(enderecos.atualizar(id, dados));
     }
 }
