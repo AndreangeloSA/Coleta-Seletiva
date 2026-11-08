@@ -1,6 +1,6 @@
 package br.edu.ifs.coletaseletiva.entity;
 
-import br.edu.ifs.coletaseletiva.dto.DadosMorador;
+import br.edu.ifs.coletaseletiva.dto.MoradorRequestDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,10 +16,10 @@ public class Morador {
     private String email;
     private String telefone;
 
-    public void atualizar(DadosMorador dados) {
-        nome = dados.nome();
-        email = dados.email();
-        telefone = dados.telefone();
+    public void atualizar(MoradorRequestDTO dados) {
+        nome = dados.getNome();
+        email = dados.getEmail();
+        telefone = dados.getTelefone();
     }
 
     public Long getId() { return id; }

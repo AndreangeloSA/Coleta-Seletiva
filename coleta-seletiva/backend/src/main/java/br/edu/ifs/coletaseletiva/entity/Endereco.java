@@ -1,6 +1,6 @@
 package br.edu.ifs.coletaseletiva.entity;
 
-import br.edu.ifs.coletaseletiva.dto.DadosEndereco;
+import br.edu.ifs.coletaseletiva.dto.EnderecoRequestDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -39,20 +39,20 @@ public class Endereco {
 
     protected Endereco() {}
 
-    public Endereco(Morador morador, DadosEndereco dados) {
+    public Endereco(Morador morador, EnderecoRequestDTO dados) {
         this.morador = morador;
         atualizar(dados);
     }
 
-    public void atualizar(DadosEndereco dados) {
-        logradouro = dados.logradouro();
-        numero = dados.numero();
-        bairro = dados.bairro();
-        municipio = dados.municipio();
-        uf = dados.uf();
-        cep = dados.cep();
-        complemento = dados.complemento();
-        semNumero = dados.semNumero();
+    public void atualizar(EnderecoRequestDTO dados) {
+        logradouro = dados.getLogradouro();
+        numero = dados.getNumero();
+        bairro = dados.getBairro();
+        municipio = dados.getMunicipio();
+        uf = dados.getUf();
+        cep = dados.getCep();
+        complemento = dados.getComplemento();
+        semNumero = dados.isSemNumero();
     }
 
     public Long getId() { return id; }
