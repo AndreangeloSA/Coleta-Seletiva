@@ -90,4 +90,14 @@ public class SolicitacaoController {
         List<HistoricoResponseDTO> historico = solicitacaoService.buscarHistorico(id);
         return ResponseEntity.ok(historico);
     }
+
+    // RF15: Resumo Gerencial de Recolhimentos
+    @GetMapping("/resumo-gerencial")
+    public ResponseEntity<ResumoGerencialResponseDTO> obterResumoGerencial(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+
+        ResumoGerencialResponseDTO resumo = solicitacaoService.obterResumoGerencial(inicio, fim);
+        return ResponseEntity.ok(resumo);
+    }
 }

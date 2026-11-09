@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.repository;
 
+import br.edu.ifs.coletaseletiva.dto.TotalPorStatusDTO; // <--- NOVO IMPORT
 import br.edu.ifs.coletaseletiva.entity.Solicitacao;
 import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import org.springframework.data.domain.Page;
@@ -34,4 +35,13 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     );
 
     boolean existsByPontoIdAndSituacaoIn(Long pontoId, List<SituacaoSolicitacao> situacoes);
+
+    // =========================================================================
+    // NOVO MÉTODO: RF15 - Contagem de solicitações agrupadas por status no período
+    // =========================================================================
+    @Query("SELECT new br.edu.ifs.coletaseletiva.dto.TotalPorStatusDTO(s.situacao, COUNT(s)) " +
+            "FROM Solicitacao s " +
+            "WHERE s.dataCriacao BETWEEN :inicio AND :fim " +
+            "GROUP BY s.situacao")
+    List<TotalPorStatusDTO> contarPorStatusNoPeriodo(@Param("inicio") LocalDateTime inicio, @Param("fim") LocalDateTime fim);
 }

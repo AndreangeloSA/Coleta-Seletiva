@@ -225,4 +225,20 @@ public class SolicitacaoService {
 
         return dto;
     }
+
+    // RF15: Gerar resumo gerencial de solicitações e materiais por período
+    @Transactional(readOnly = true)
+    public ResumoGerencialResponseDTO obterResumoGerencial(LocalDateTime inicio, LocalDateTime fim) {
+        if (inicio == null || fim == null) {
+            throw new IllegalArgumentException("As datas de início e fim são obrigatórias para gerar o resumo gerencial.");
+        }
+        if (inicio.isAfter(fim)) {
+            throw new IllegalArgumentException("A data de início não pode ser posterior à data de fim.");
+        }
+
+        List<TotalPorStatusDTO> totaisStatus = solicitacaoRepository.contarPorStatusNoPeriodo(inicio, fim);
+        List<TotalPorMaterialDTO> totaisMaterial = itemSolicitacaoRepository.somarQuantidadePorMaterialNoPeriodo(inicio, fim);
+
+        return new ResumoGerencialResponseDTO(inicio, fim, totaisStatus, totaisMaterial);
+    }
 }
