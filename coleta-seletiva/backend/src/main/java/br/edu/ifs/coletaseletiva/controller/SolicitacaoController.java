@@ -62,6 +62,28 @@ public class SolicitacaoController {
         return ResponseEntity.ok(cancelada);
     }
 
+    // RF11 e RF12: Concluir solicitação de recolhimento
+    @PatchMapping("/{id}/concluir")
+    public ResponseEntity<SolicitacaoResponseDTO> concluirSolicitacao(
+            @PathVariable Long id,
+            @Valid @RequestBody ConcluirSolicitacaoRequestDTO requestDTO,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "UsuarioAutenticado") String responsavel) {
+
+        SolicitacaoResponseDTO concluida = solicitacaoService.concluirSolicitacao(id, requestDTO, responsavel);
+        return ResponseEntity.ok(concluida);
+    }
+
+    // RF13: Registrar tentativa frustrada
+    @PatchMapping("/{id}/frustrada")
+    public ResponseEntity<SolicitacaoResponseDTO> registrarFrustracao(
+            @PathVariable Long id,
+            @Valid @RequestBody RegistrarFrustracaoRequestDTO requestDTO,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "UsuarioAutenticado") String responsavel) {
+
+        SolicitacaoResponseDTO frustrada = solicitacaoService.registrarFrustracao(id, requestDTO, responsavel);
+        return ResponseEntity.ok(frustrada);
+    }
+
     // RF14: Consultar histórico de alterações/auditoria da solicitação
     @GetMapping("/{id}/historico")
     public ResponseEntity<List<HistoricoResponseDTO>> buscarHistorico(@PathVariable Long id) {

@@ -128,6 +128,64 @@ public class SolicitacaoService {
                 .collect(Collectors.toList());
     }
 
+    // RF11 e RF12: Registrar conclusão do recolhimento com quantidades efetivas
+    @Transactional
+    public SolicitacaoResponseDTO concluirSolicitacao(Long id, ConcluirSolicitacaoRequestDTO requestDTO, String responsavel) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com o ID: " + id));
+
+        if (solicitacao.getSituacao() == SituacaoSolicitacao.CONCLUIDA || solicitacao.getSituacao() == SituacaoSolicitacao.CANCELADA || solicitacao.getSituacao() == SituacaoSolicitacao.RECUSADA) {
+            throw new IllegalStateException("Solicitações já finalizadas (concluídas, recusadas ou canceladas) não podem ser alteradas.");
+        }
+
+        List<ItemSolicitacao> itensExistentes = itemSolicitacaoRepository.findBySolicitacaoId(id);
+
+        for (ItemConclusaoDTO itemDTO : requestDTO.getItens()) {
+            ItemSolicitacao item = itensExistentes.stream()
+                    .filter(i -> i.getId().equals(itemDTO.getItemId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Item ID " + itemDTO.getItemId() + " não pertence a esta solicitação."));
+            item.setQuantidadeEfetiva(itemDTO.getQuantidadeEfetiva());
+        }
+
+        itemSolicitacaoRepository.saveAll(itensExistentes);
+
+        SituacaoSolicitacao anterior = solicitacao.getSituacao();
+        solicitacao.setSituacao(SituacaoSolicitacao.CONCLUIDA);
+        solicitacao.setDataAtualizacao(LocalDateTime.now());
+        if (requestDTO.getObservacoes() != null && !requestDTO.getObservacoes().isBlank()) {
+            solicitacao.setObservacoes(solicitacao.getObservacoes() + " | Conclusão: " + requestDTO.getObservacoes());
+        }
+
+        Solicitacao atualizada = solicitacaoRepository.save(solicitacao);
+
+        registrarHistorico(atualizada, anterior, SituacaoSolicitacao.CONCLUIDA, responsavel, "Recolhimento concluído com sucesso", null);
+
+        return converterParaResponseDTO(atualizada, itensExistentes);
+    }
+
+    // RF13: Registrar tentativa frustrada de recolhimento
+    @Transactional
+    public SolicitacaoResponseDTO registrarFrustracao(Long id, RegistrarFrustracaoRequestDTO requestDTO, String responsavel) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com o ID: " + id));
+
+        if (solicitacao.getSituacao() == SituacaoSolicitacao.CONCLUIDA || solicitacao.getSituacao() == SituacaoSolicitacao.CANCELADA || solicitacao.getSituacao() == SituacaoSolicitacao.RECUSADA) {
+            throw new IllegalStateException("Solicitações já finalizadas não podem ter tentativa frustrada registrada.");
+        }
+
+        SituacaoSolicitacao anterior = solicitacao.getSituacao();
+        solicitacao.setSituacao(SituacaoSolicitacao.RECUSADA);
+        solicitacao.setDataAtualizacao(LocalDateTime.now());
+
+        Solicitacao atualizada = solicitacaoRepository.save(solicitacao);
+
+        registrarHistorico(atualizada, anterior, SituacaoSolicitacao.RECUSADA, responsavel, requestDTO.getMotivo(), requestDTO.getDadosTentativa());
+
+        List<ItemSolicitacao> itens = itemSolicitacaoRepository.findBySolicitacaoId(id);
+        return converterParaResponseDTO(atualizada, itens);
+    }
+
     private void registrarHistorico(Solicitacao solicitacao, SituacaoSolicitacao anterior,
                                     SituacaoSolicitacao nova, String responsavel,
                                     String motivo, String dadosTentativa) {
