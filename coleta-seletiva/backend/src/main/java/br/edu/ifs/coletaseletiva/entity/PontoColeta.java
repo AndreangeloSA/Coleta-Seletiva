@@ -5,10 +5,10 @@ public class PontoColeta {
 
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
  @Column(nullable=false) private String nome;
- @Column(nullable=false) private String endereco;
+ @Column(nullable=false, length = 500) private String endereco;
  private String contato;
 
- @Column(name="horarios_funcionamento") private String horariosFuncionamento;
+ @Column(name="horarios_funcionamento", length = 500) private String horariosFuncionamento;
  @Column(nullable=false) private boolean ativo=true;
  @Column(name="recolhimento_domiciliar",nullable=false) private boolean recolhimentoDomiciliar;
  public PontoColeta(){}

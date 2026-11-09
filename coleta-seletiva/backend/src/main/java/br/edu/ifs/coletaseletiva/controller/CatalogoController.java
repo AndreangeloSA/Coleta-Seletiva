@@ -6,6 +6,7 @@ import br.edu.ifs.coletaseletiva.service.MaterialService;
 import br.edu.ifs.coletaseletiva.service.PontoColetaService;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,13 +58,20 @@ public class CatalogoController {
     }
 
     @GetMapping("/pontos")
-    public List<PontoResponseDTO> listarPontos() {
-        return pontos.listarAtivos().stream().map(PontoResponseDTO::new).toList();
+    public Page<PontoConsultaResponseDTO> listarPontos(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String municipio,
+            @RequestParam(required = false) String bairro,
+            @RequestParam(required = false) Long materialId,
+            @RequestParam(required = false) String material,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanho) {
+        return pontos.pesquisarAtivos(nome, municipio, bairro, materialId, material, pagina, tamanho);
     }
 
     @GetMapping("/pontos/{id}")
-    public PontoResponseDTO consultarPonto(@PathVariable Long id) {
-        return new PontoResponseDTO(pontos.buscar(id));
+    public PontoConsultaResponseDTO consultarPonto(@PathVariable Long id) {
+        return pontos.consultarComMateriais(id);
     }
 
     @PutMapping("/pontos/{id}")
