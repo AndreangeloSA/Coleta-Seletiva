@@ -3,14 +3,17 @@ package br.edu.ifs.coletaseletiva.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class ItemSolicitacaoRequestDTO {
 
     @NotNull(message = "O ID do material é obrigatório.")
+    @Positive(message = "O ID do material deve ser maior que zero.")
     private Long materialId;
 
     @NotBlank(message = "A unidade é obrigatória.")
+    @Size(max = 50, message = "A unidade deve ter no máximo 50 caracteres.")
     private String unidade;
 
     @NotNull(message = "A quantidade estimada é obrigatória.")

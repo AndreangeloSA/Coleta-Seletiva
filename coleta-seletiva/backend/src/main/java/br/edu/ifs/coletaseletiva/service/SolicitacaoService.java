@@ -11,6 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.math.BigDecimal;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,35 +27,132 @@ public class SolicitacaoService {
     private final SolicitacaoRepository solicitacaoRepository;
     private final ItemSolicitacaoRepository itemSolicitacaoRepository;
     private final HistoricoRepository historicoRepository;
+    private final MoradorRepository moradorRepository;
+    private final EnderecoRepository enderecoRepository;
+    private final PontoColetaRepository pontoColetaRepository;
+    private final MaterialAceitoRepository materialAceitoRepository;
 
     public SolicitacaoService(SolicitacaoRepository solicitacaoRepository,
                               ItemSolicitacaoRepository itemSolicitacaoRepository,
-                              HistoricoRepository historicoRepository) {
+                              HistoricoRepository historicoRepository,
+                              MoradorRepository moradorRepository,
+                              EnderecoRepository enderecoRepository,
+                              PontoColetaRepository pontoColetaRepository,
+                              MaterialAceitoRepository materialAceitoRepository) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.itemSolicitacaoRepository = itemSolicitacaoRepository;
         this.historicoRepository = historicoRepository;
+        this.moradorRepository = moradorRepository;
+        this.enderecoRepository = enderecoRepository;
+        this.pontoColetaRepository = pontoColetaRepository;
+        this.materialAceitoRepository = materialAceitoRepository;
     }
 
-    // RF08: Agendamento de solicitação com geração de protocolo e trava de RN05
+    // RF08: cria solicitação validando morador, endereço, ponto e materiais aceitos.
     @Transactional
     public SolicitacaoResponseDTO criarSolicitacao(SolicitacaoRequestDTO requestDTO) {
+        Morador morador = moradorRepository.findById(requestDTO.getMoradorId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Morador não encontrado."));
+
+        Endereco endereco = enderecoRepository.findById(requestDTO.getEnderecoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Endereço não encontrado."));
+
+        if (!endereco.getMoradorId().equals(morador.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "O endereço informado não pertence ao morador.");
+        }
+
+        PontoColeta ponto = pontoColetaRepository.findById(requestDTO.getPontoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Ponto de coleta não encontrado."));
+
+        if (!ponto.isAtivo()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Não é possível solicitar coleta em um ponto inativo.");
+        }
+
+        if (requestDTO.getItens() == null || requestDTO.getItens().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "A solicitação deve conter pelo menos um material.");
+        }
+
+        // RN05: mantém a regra já existente de uma solicitação aberta por ponto.
         List<SituacaoSolicitacao> situacoesAbertas = List.of(
                 SituacaoSolicitacao.SOLICITADA,
                 SituacaoSolicitacao.AGENDADA,
                 SituacaoSolicitacao.EM_RECOLHIMENTO
         );
-
-        // RN05: Impede nova solicitação se houver outra aberta ou em andamento para o mesmo ponto
         if (solicitacaoRepository.existsByPontoIdAndSituacaoIn(requestDTO.getPontoId(), situacoesAbertas)) {
-            throw new IllegalArgumentException("Já existe uma solicitação em aberto ou em andamento para este ponto de coleta.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Já existe uma solicitação em aberto ou em andamento para este ponto de coleta.");
+        }
+
+        // Carrega os materiais realmente aceitos pelo ponto e valida cada item antes de persistir.
+        Map<Long, MaterialAceito> materiaisAceitos = materialAceitoRepository
+                .listarMateriaisAtivosDoPonto(ponto.getId())
+                .stream()
+                .collect(Collectors.toMap(MaterialAceito::getMaterialId, Function.identity()));
+
+        Set<Long> materiaisInformados = new HashSet<>();
+        for (ItemSolicitacaoRequestDTO itemDTO : requestDTO.getItens()) {
+            if (itemDTO.getMaterialId() == null || !materiaisInformados.add(itemDTO.getMaterialId())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Cada material deve ser informado uma única vez na solicitação.");
+            }
+
+            MaterialAceito materialAceito = materiaisAceitos.get(itemDTO.getMaterialId());
+            if (materialAceito == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "O material de ID " + itemDTO.getMaterialId()
+                                + " não está ativo ou não é aceito pelo ponto de coleta informado.");
+            }
+
+            if (itemDTO.getUnidade() == null
+                    || !materialAceito.getUnidadeMedida().equalsIgnoreCase(itemDTO.getUnidade().strip())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "A unidade informada para o material de ID " + itemDTO.getMaterialId()
+                                + " deve ser " + materialAceito.getUnidadeMedida() + ".");
+            }
+
+            BigDecimal limite = materialAceito.getLimitePorSolicitacao();
+            if (limite != null && itemDTO.getQuantidadeEstimada() != null
+                    && itemDTO.getQuantidadeEstimada().compareTo(limite) > 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "A quantidade do material de ID " + itemDTO.getMaterialId()
+                                + " excede o limite por solicitação (" + limite + ").");
+            }
         }
 
         Solicitacao solicitacao = new Solicitacao();
-        solicitacao.setProtocolo("REC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        solicitacao.setPontoId(requestDTO.getPontoId());
+        String protocolo;
+        do {
+            protocolo = "REC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        } while (solicitacaoRepository.existsByProtocolo(protocolo));
+
+        solicitacao.setProtocolo(protocolo);
+        solicitacao.setMorador(morador);
+        solicitacao.setPontoId(ponto.getId());
+
+        // A solicitação guarda uma cópia do endereço para preservar o histórico (RN04).
+        solicitacao.setLogradouro(endereco.getLogradouro());
+        solicitacao.setNumero(endereco.getNumero());
+        solicitacao.setBairro(endereco.getBairro());
+        solicitacao.setMunicipio(endereco.getMunicipio());
+        solicitacao.setUf(endereco.getUf());
+        solicitacao.setCep(endereco.getCep());
+        solicitacao.setComplemento(endereco.getComplemento());
+
         solicitacao.setSituacao(SituacaoSolicitacao.SOLICITADA);
-        solicitacao.setDataCriacao(LocalDateTime.now());
-        solicitacao.setDataAtualizacao(LocalDateTime.now());
+        LocalDateTime agora = LocalDateTime.now();
+        solicitacao.setDataCriacao(agora);
+        solicitacao.setDataAtualizacao(agora);
         solicitacao.setObservacoes(requestDTO.getObservacoes());
 
         Solicitacao salva = solicitacaoRepository.save(solicitacao);
@@ -57,16 +161,17 @@ public class SolicitacaoService {
             ItemSolicitacao item = new ItemSolicitacao();
             item.setSolicitacao(salva);
             item.setMaterialId(dto.getMaterialId());
-            item.setUnidade(dto.getUnidade());
+            item.setUnidade(dto.getUnidade().strip());
             item.setQuantidadeEstimada(dto.getQuantidadeEstimada());
             return item;
         }).collect(Collectors.toList());
 
-        itemSolicitacaoRepository.saveAll(itens);
+        List<ItemSolicitacao> itensSalvos = itemSolicitacaoRepository.saveAll(itens);
 
-        registrarHistorico(salva, null, SituacaoSolicitacao.SOLICITADA, "Sistema", "Abertura de solicitação de recolhimento", null);
+        registrarHistorico(salva, null, SituacaoSolicitacao.SOLICITADA,
+                "Sistema", "Abertura de solicitação de recolhimento", null);
 
-        return converterParaResponseDTO(salva, itens);
+        return converterParaResponseDTO(salva, itensSalvos);
     }
 
     // RF09: Consulta paginada com filtros
@@ -204,7 +309,15 @@ public class SolicitacaoService {
         SolicitacaoResponseDTO dto = new SolicitacaoResponseDTO();
         dto.setId(solicitacao.getId());
         dto.setProtocolo(solicitacao.getProtocolo());
+        dto.setMoradorId(solicitacao.getMorador() != null ? solicitacao.getMorador().getId() : null);
         dto.setPontoId(solicitacao.getPontoId());
+        dto.setLogradouro(solicitacao.getLogradouro());
+        dto.setNumero(solicitacao.getNumero());
+        dto.setBairro(solicitacao.getBairro());
+        dto.setMunicipio(solicitacao.getMunicipio());
+        dto.setUf(solicitacao.getUf());
+        dto.setCep(solicitacao.getCep());
+        dto.setComplemento(solicitacao.getComplemento());
         dto.setSituacao(solicitacao.getSituacao());
         dto.setDataCriacao(solicitacao.getDataCriacao());
         dto.setDataAtualizacao(solicitacao.getDataAtualizacao());
