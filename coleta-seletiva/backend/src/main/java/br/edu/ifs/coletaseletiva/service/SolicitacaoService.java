@@ -70,24 +70,17 @@ public class SolicitacaoService {
 
         if (!ponto.isAtivo()) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Não é possível solicitar coleta em um ponto inativo.");
+                    HttpStatus.CONFLICT, "Não é possível solicitar coleta em um ponto inativo." );
+        }
+
+        if (!ponto.isRecolhimentoDomiciliar()) {
+            throw new ResponseStatusException(
+                   HttpStatus.CONFLICT, "Este ponto de coleta não realiza recolhimento domiciliar.");
         }
 
         if (requestDTO.getItens() == null || requestDTO.getItens().isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "A solicitação deve conter pelo menos um material.");
-        }
-
-        // RN05: mantém a regra já existente de uma solicitação aberta por ponto.
-        List<SituacaoSolicitacao> situacoesAbertas = List.of(
-                SituacaoSolicitacao.SOLICITADA,
-                SituacaoSolicitacao.AGENDADA,
-                SituacaoSolicitacao.EM_RECOLHIMENTO
-        );
-        if (solicitacaoRepository.existsByPontoIdAndSituacaoIn(requestDTO.getPontoId(), situacoesAbertas)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Já existe uma solicitação em aberto ou em andamento para este ponto de coleta.");
         }
 
         // Carrega os materiais realmente aceitos pelo ponto e valida cada item antes de persistir.

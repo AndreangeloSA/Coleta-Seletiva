@@ -1,3 +1,4 @@
+
 package br.edu.ifs.coletaseletiva.dto;
 
 import jakarta.validation.constraints.NotBlank;
