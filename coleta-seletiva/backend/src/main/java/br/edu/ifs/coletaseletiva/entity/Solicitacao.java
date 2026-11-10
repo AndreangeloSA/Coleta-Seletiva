@@ -2,7 +2,7 @@ package br.edu.ifs.coletaseletiva.entity;
 
 import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class Solicitacao {
     private String protocolo;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "morador_id")
+    @JoinColumn(name = "morador_id", nullable = false)
     private Morador morador;
 
     // ID ou referência do Ponto de Coleta
@@ -29,30 +29,36 @@ public class Solicitacao {
     @Column(nullable = false)
     private String logradouro;
     private String numero;
+
+    @Column(name = "sem_numero", nullable = false)
+    private boolean semNumero;
+
     @Column(nullable = false)
     private String bairro;
     @Column(nullable = false)
     private String municipio;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2)
     private String uf;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 9)
     private String cep;
     private String complemento;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private SituacaoSolicitacao situacao;
 
     @Column(name = "data_criacao", nullable = false)
-    private LocalDateTime dataCriacao;
+    private OffsetDateTime dataCriacao;
 
     @Column(name = "data_agendamento")
-    private LocalDateTime dataAgendamento;
+    private OffsetDateTime dataAgendamento;
 
+    @Column(length = 1000)
     private String observacoes;
 
     // Controle otimista de concorrência (RN06)
     @Version
+    @Column(nullable = false)
     private Long versao;
 
     @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -82,6 +88,9 @@ public class Solicitacao {
     public String getNumero() { return numero; }
     public void setNumero(String numero) { this.numero = numero; }
 
+    public boolean isSemNumero() { return semNumero; }
+    public void setSemNumero(boolean semNumero) { this.semNumero = semNumero; }
+
     public String getBairro() { return bairro; }
     public void setBairro(String bairro) { this.bairro = bairro; }
 
@@ -100,11 +109,11 @@ public class Solicitacao {
     public SituacaoSolicitacao getSituacao() { return situacao; }
     public void setSituacao(SituacaoSolicitacao situacao) { this.situacao = situacao; }
 
-    public LocalDateTime getDataCriacao() { return dataCriacao; }
-    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+    public OffsetDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(OffsetDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
 
-    public LocalDateTime getDataAgendamento() { return dataAgendamento; }
-    public void setDataAgendamento(LocalDateTime dataAgendamento) { this.dataAgendamento = dataAgendamento; }
+    public OffsetDateTime getDataAgendamento() { return dataAgendamento; }
+    public void setDataAgendamento(OffsetDateTime dataAgendamento) { this.dataAgendamento = dataAgendamento; }
 
     public String getObservacoes() { return observacoes; }
     public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
@@ -128,13 +137,14 @@ public class Solicitacao {
         h.setSolicitacao(this);
     }
 
-    private LocalDateTime dataAtualizacao;
+    @Column(name = "data_atualizacao")
+    private OffsetDateTime dataAtualizacao;
 
-    public LocalDateTime getDataAtualizacao() {
+    public OffsetDateTime getDataAtualizacao() {
         return dataAtualizacao;
     }
 
-    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
+    public void setDataAtualizacao(OffsetDateTime dataAtualizacao) {
         this.dataAtualizacao = dataAtualizacao;
     }
 }

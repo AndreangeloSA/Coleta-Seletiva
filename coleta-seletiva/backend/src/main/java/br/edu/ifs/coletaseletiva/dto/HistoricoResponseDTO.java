@@ -1,7 +1,7 @@
 package br.edu.ifs.coletaseletiva.dto;
 
 import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class HistoricoResponseDTO {
 
@@ -9,7 +9,7 @@ public class HistoricoResponseDTO {
     private Long solicitacaoId;
     private SituacaoSolicitacao situacaoAnterior;
     private SituacaoSolicitacao situacaoNova;
-    private LocalDateTime dataHora;
+    private OffsetDateTime dataHora;
     private String responsavel;
     private String motivo;
     private String dadosTentativa;
@@ -28,8 +28,8 @@ public class HistoricoResponseDTO {
     public SituacaoSolicitacao getSituacaoNova() { return situacaoNova; }
     public void setSituacaoNova(SituacaoSolicitacao situacaoNova) { this.situacaoNova = situacaoNova; }
 
-    public LocalDateTime getDataHora() { return dataHora; }
-    public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+    public OffsetDateTime getDataHora() { return dataHora; }
+    public void setDataHora(OffsetDateTime dataHora) { this.dataHora = dataHora; }
 
     public String getResponsavel() { return responsavel; }
     public void setResponsavel(String responsavel) { this.responsavel = responsavel; }

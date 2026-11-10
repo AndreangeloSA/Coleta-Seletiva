@@ -3,6 +3,8 @@ package br.edu.ifs.coletaseletiva.service;
 import br.edu.ifs.coletaseletiva.dto.MaterialAceitoRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.MaterialAceito;
 import br.edu.ifs.coletaseletiva.repository.MaterialAceitoRepository;
+import br.edu.ifs.coletaseletiva.repository.ItemSolicitacaoRepository;
+import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,13 +18,16 @@ public class MaterialAceitoService {
     private final MaterialAceitoRepository vinculos;
     private final PontoColetaService pontos;
     private final MaterialService materiais;
+    private final ItemSolicitacaoRepository itensSolicitacao;
 
     public MaterialAceitoService(MaterialAceitoRepository vinculos,
                                  PontoColetaService pontos,
-                                 MaterialService materiais) {
+                                 MaterialService materiais,
+                                 ItemSolicitacaoRepository itensSolicitacao) {
         this.vinculos = vinculos;
         this.pontos = pontos;
         this.materiais = materiais;
+        this.itensSolicitacao = itensSolicitacao;
     }
 
     public MaterialAceito vincular(Long pontoId, Long materialId, MaterialAceitoRequestDTO dados) {
@@ -53,6 +58,12 @@ public class MaterialAceitoService {
                 .filter(item -> item.getMaterialId().equals(materialId))
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vínculo não encontrado"));
+        List<SituacaoSolicitacao> abertas = List.of(SituacaoSolicitacao.SOLICITADA,
+                SituacaoSolicitacao.AGENDADA, SituacaoSolicitacao.EM_RECOLHIMENTO);
+        if (itensSolicitacao.existeItemEmSolicitacaoAberta(pontoId, materialId, abertas)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "O vínculo não pode ser removido enquanto houver solicitações abertas que utilizem este material neste ponto.");
+        }
         vinculos.delete(vinculo);
     }
 }

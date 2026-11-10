@@ -7,6 +7,8 @@ import br.edu.ifs.coletaseletiva.entity.MaterialAceito;
 import br.edu.ifs.coletaseletiva.entity.PontoColeta;
 import br.edu.ifs.coletaseletiva.repository.MaterialAceitoRepository;
 import br.edu.ifs.coletaseletiva.repository.PontoColetaRepository;
+import br.edu.ifs.coletaseletiva.repository.SolicitacaoRepository;
+import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,10 +26,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class PontoColetaService {
     private final PontoColetaRepository pontos;
     private final MaterialAceitoRepository materiaisAceitos;
+    private final SolicitacaoRepository solicitacoes;
 
-    public PontoColetaService(PontoColetaRepository pontos, MaterialAceitoRepository materiaisAceitos) {
+    public PontoColetaService(PontoColetaRepository pontos, MaterialAceitoRepository materiaisAceitos,
+                              SolicitacaoRepository solicitacoes) {
         this.pontos = pontos;
         this.materiaisAceitos = materiaisAceitos;
+        this.solicitacoes = solicitacoes;
     }
 
     public PontoColeta cadastrar(PontoRequestDTO dados) {
@@ -35,7 +40,11 @@ public class PontoColetaService {
     }
 
     public PontoColeta atualizar(Long id, PontoRequestDTO dados) {
-        return salvar(buscar(id), dados);
+        PontoColeta ponto = buscar(id);
+        if (ponto.isAtivo() && Boolean.FALSE.equals(dados.ativo())) {
+            validarSemSolicitacoesAbertas(id);
+        }
+        return salvar(ponto, dados);
     }
 
     @Transactional(readOnly = true)
@@ -99,8 +108,18 @@ public class PontoColetaService {
 
     public PontoColeta inativar(Long id) {
         PontoColeta ponto = buscar(id);
+        validarSemSolicitacoesAbertas(id);
         ponto.inativar();
         return ponto;
+    }
+
+    private void validarSemSolicitacoesAbertas(Long pontoId) {
+        List<SituacaoSolicitacao> abertas = List.of(SituacaoSolicitacao.SOLICITADA,
+                SituacaoSolicitacao.AGENDADA, SituacaoSolicitacao.EM_RECOLHIMENTO);
+        if (solicitacoes.existsByPontoIdAndSituacaoIn(pontoId, abertas)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "O ponto não pode ser inativado enquanto possuir solicitações abertas. Resolva ou cancele os atendimentos primeiro.");
+        }
     }
 
     private PontoColeta salvar(PontoColeta ponto, PontoRequestDTO dados) {

@@ -1,38 +1,38 @@
 package br.edu.ifs.coletaseletiva.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class ResumoGerencialResponseDTO {
 
-    private LocalDateTime inicio;
-    private LocalDateTime fim;
+    private OffsetDateTime inicio;
+    private OffsetDateTime fim;
     private List<TotalPorStatusDTO> totaisPorStatus;
     private List<TotalPorMaterialDTO> totaisPorMaterial;
 
     public ResumoGerencialResponseDTO() {
     }
 
-    public ResumoGerencialResponseDTO(LocalDateTime inicio, LocalDateTime fim, List<TotalPorStatusDTO> totaisPorStatus, List<TotalPorMaterialDTO> totaisPorMaterial) {
+    public ResumoGerencialResponseDTO(OffsetDateTime inicio, OffsetDateTime fim, List<TotalPorStatusDTO> totaisPorStatus, List<TotalPorMaterialDTO> totaisPorMaterial) {
         this.inicio = inicio;
         this.fim = fim;
         this.totaisPorStatus = totaisPorStatus;
         this.totaisPorMaterial = totaisPorMaterial;
     }
 
-    public LocalDateTime getInicio() {
+    public OffsetDateTime getInicio() {
         return inicio;
     }
 
-    public void setInicio(LocalDateTime inicio) {
+    public void setInicio(OffsetDateTime inicio) {
         this.inicio = inicio;
     }
 
-    public LocalDateTime getFim() {
+    public OffsetDateTime getFim() {
         return fim;
     }
 
-    public void setFim(LocalDateTime fim) {
+    public void setFim(OffsetDateTime fim) {
         this.fim = fim;
     }
 

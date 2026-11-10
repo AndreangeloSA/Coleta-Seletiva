@@ -11,93 +11,105 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/solicitacoes")
 public class SolicitacaoController {
-
     private final SolicitacaoService solicitacaoService;
 
     public SolicitacaoController(SolicitacaoService solicitacaoService) {
         this.solicitacaoService = solicitacaoService;
     }
 
-    // RF08: Criar/Agendar solicitação de recolhimento
     @PostMapping
-    public ResponseEntity<SolicitacaoResponseDTO> criarSolicitacao(@Valid @RequestBody SolicitacaoRequestDTO requestDTO) {
-        SolicitacaoResponseDTO criada = solicitacaoService.criarSolicitacao(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
+    public ResponseEntity<SolicitacaoResponseDTO> criarSolicitacao(
+            @Valid @RequestBody SolicitacaoRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(solicitacaoService.criarSolicitacao(requestDTO));
     }
 
-    // RF09: Consultar solicitações com paginação e filtros opcionais
     @GetMapping
     public ResponseEntity<Page<SolicitacaoResponseDTO>> listarComFiltros(
+            @RequestParam(required = false) Long moradorId,
             @RequestParam(required = false) Long pontoId,
             @RequestParam(required = false) SituacaoSolicitacao situacao,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fim,
             Pageable pageable) {
-
-        Page<SolicitacaoResponseDTO> resultado = solicitacaoService.listarComFiltros(pontoId, situacao, inicio, fim, pageable);
-        return ResponseEntity.ok(resultado);
+        return ResponseEntity.ok(solicitacaoService.listarComFiltros(
+                moradorId, pontoId, situacao, inicio, fim, pageable));
     }
 
-    // Buscar solicitação por ID
     @GetMapping("/{id}")
     public ResponseEntity<SolicitacaoResponseDTO> buscarPorId(@PathVariable Long id) {
-        SolicitacaoResponseDTO dto = solicitacaoService.buscarPorId(id);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(solicitacaoService.buscarPorId(id));
     }
 
-    // RF10: Cancelar solicitação
+    @PutMapping("/{id}")
+    public ResponseEntity<SolicitacaoResponseDTO> atualizarAntesDoAgendamento(
+            @PathVariable Long id, @Valid @RequestBody SolicitacaoRequestDTO requestDTO) {
+        return ResponseEntity.ok(solicitacaoService.atualizarAntesDoAgendamento(id, requestDTO));
+    }
+
+    @PostMapping("/{id}/agendar")
+    public ResponseEntity<SolicitacaoResponseDTO> agendar(
+            @PathVariable Long id, @Valid @RequestBody AgendarSolicitacaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.agendar(id, dados, responsavel));
+    }
+
+    @PostMapping("/{id}/recusar")
+    public ResponseEntity<SolicitacaoResponseDTO> recusar(
+            @PathVariable Long id, @Valid @RequestBody RecusarSolicitacaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.recusar(id, dados, responsavel));
+    }
+
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<SolicitacaoResponseDTO> cancelarSolicitacao(
-            @PathVariable Long id,
-            @Valid @RequestBody CancelarSolicitacaoRequestDTO requestDTO,
-            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "UsuarioAutenticado") String responsavel) {
-
-        SolicitacaoResponseDTO cancelada = solicitacaoService.cancelarSolicitacao(id, requestDTO, responsavel);
-        return ResponseEntity.ok(cancelada);
+    public ResponseEntity<SolicitacaoResponseDTO> cancelar(
+            @PathVariable Long id, @Valid @RequestBody CancelarSolicitacaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Morador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.cancelarSolicitacao(id, dados, responsavel));
     }
 
-    // RF11 e RF12: Concluir solicitação de recolhimento
+    @PostMapping("/{id}/iniciar")
+    public ResponseEntity<SolicitacaoResponseDTO> iniciar(
+            @PathVariable Long id, @Valid @RequestBody VersaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.iniciar(id, dados, responsavel));
+    }
+
     @PatchMapping("/{id}/concluir")
-    public ResponseEntity<SolicitacaoResponseDTO> concluirSolicitacao(
-            @PathVariable Long id,
-            @Valid @RequestBody ConcluirSolicitacaoRequestDTO requestDTO,
-            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "UsuarioAutenticado") String responsavel) {
-
-        SolicitacaoResponseDTO concluida = solicitacaoService.concluirSolicitacao(id, requestDTO, responsavel);
-        return ResponseEntity.ok(concluida);
+    public ResponseEntity<SolicitacaoResponseDTO> concluir(
+            @PathVariable Long id, @Valid @RequestBody ConcluirSolicitacaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.concluirSolicitacao(id, dados, responsavel));
     }
 
-    // RF13: Registrar tentativa frustrada
     @PatchMapping("/{id}/frustrada")
     public ResponseEntity<SolicitacaoResponseDTO> registrarFrustracao(
-            @PathVariable Long id,
-            @Valid @RequestBody RegistrarFrustracaoRequestDTO requestDTO,
-            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "UsuarioAutenticado") String responsavel) {
-
-        SolicitacaoResponseDTO frustrada = solicitacaoService.registrarFrustracao(id, requestDTO, responsavel);
-        return ResponseEntity.ok(frustrada);
+            @PathVariable Long id, @Valid @RequestBody RegistrarFrustracaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.registrarFrustracao(id, dados, responsavel));
     }
 
-    // RF14: Consultar histórico de alterações/auditoria da solicitação
+    @PatchMapping("/{id}/reagendar")
+    public ResponseEntity<SolicitacaoResponseDTO> reagendar(
+            @PathVariable Long id, @Valid @RequestBody ReagendarSolicitacaoRequestDTO dados,
+            @RequestHeader(value = "X-Usuario-Responsavel", defaultValue = "Operador (protótipo)") String responsavel) {
+        return ResponseEntity.ok(solicitacaoService.reagendar(id, dados, responsavel));
+    }
+
     @GetMapping("/{id}/historico")
     public ResponseEntity<List<HistoricoResponseDTO>> buscarHistorico(@PathVariable Long id) {
-        List<HistoricoResponseDTO> historico = solicitacaoService.buscarHistorico(id);
-        return ResponseEntity.ok(historico);
+        return ResponseEntity.ok(solicitacaoService.buscarHistorico(id));
     }
 
-    // RF15: Resumo Gerencial de Recolhimentos
     @GetMapping("/resumo-gerencial")
     public ResponseEntity<ResumoGerencialResponseDTO> obterResumoGerencial(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
-
-        ResumoGerencialResponseDTO resumo = solicitacaoService.obterResumoGerencial(inicio, fim);
-        return ResponseEntity.ok(resumo);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fim) {
+        return ResponseEntity.ok(solicitacaoService.obterResumoGerencial(inicio, fim));
     }
 }

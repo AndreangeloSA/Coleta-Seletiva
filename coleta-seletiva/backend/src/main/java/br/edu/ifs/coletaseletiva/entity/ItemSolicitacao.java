@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "item_solicitacao")
+@Table(name = "item_solicitacao", uniqueConstraints = @UniqueConstraint(
+        name = "uk_item_solicitacao_material", columnNames = {"solicitacao_id", "material_id"}))
 public class ItemSolicitacao {
 
     @Id
@@ -12,7 +13,7 @@ public class ItemSolicitacao {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "solicitacao_id")
+    @JoinColumn(name = "solicitacao_id", nullable = false)
     private Solicitacao solicitacao;
 
     @Column(name = "material_id", nullable = false)
@@ -21,10 +22,10 @@ public class ItemSolicitacao {
     @Column(nullable = false)
     private String unidade;
 
-    @Column(name = "quantidade_estimada", nullable = false)
+    @Column(name = "quantidade_estimada", nullable = false, precision = 14, scale = 3)
     private BigDecimal quantidadeEstimada;
 
-    @Column(name = "quantidade_efetiva")
+    @Column(name = "quantidade_efetiva", precision = 14, scale = 3)
     private BigDecimal quantidadeEfetiva;
 
     public ItemSolicitacao() {}

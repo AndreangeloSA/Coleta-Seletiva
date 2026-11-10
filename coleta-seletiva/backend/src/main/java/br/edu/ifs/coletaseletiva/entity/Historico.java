@@ -2,7 +2,7 @@ package br.edu.ifs.coletaseletiva.entity;
 
 import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "historico")
@@ -13,19 +13,19 @@ public class Historico {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "solicitacao_id")
+    @JoinColumn(name = "solicitacao_id", nullable = false)
     private Solicitacao solicitacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "situacao_anterior")
+    @Column(name = "situacao_anterior", length = 50)
     private SituacaoSolicitacao situacaoAnterior;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "situacao_nova", nullable = false)
+    @Column(name = "situacao_nova", nullable = false, length = 50)
     private SituacaoSolicitacao situacaoNova;
 
     @Column(name = "data_hora", nullable = false)
-    private LocalDateTime dataHora;
+    private OffsetDateTime dataHora;
 
     private String responsavel;
     private String motivo;
@@ -47,8 +47,8 @@ public class Historico {
     public SituacaoSolicitacao getSituacaoNova() { return situacaoNova; }
     public void setSituacaoNova(SituacaoSolicitacao situacaoNova) { this.situacaoNova = situacaoNova; }
 
-    public LocalDateTime getDataHora() { return dataHora; }
-    public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+    public OffsetDateTime getDataHora() { return dataHora; }
+    public void setDataHora(OffsetDateTime dataHora) { this.dataHora = dataHora; }
 
     public String getResponsavel() { return responsavel; }
     public void setResponsavel(String responsavel) { this.responsavel = responsavel; }

@@ -1,6 +1,7 @@
 package br.edu.ifs.coletaseletiva.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
@@ -8,10 +9,11 @@ import java.math.BigDecimal;
 public class ItemConclusaoDTO {
 
     @NotNull(message = "O ID do item é obrigatório")
+    @Positive(message = "O ID do item deve ser maior que zero")
     private Long itemId;
 
     @NotNull(message = "A quantidade efetiva é obrigatória")
-    @Positive(message = "A quantidade efetiva deve ser maior que zero")
+    @PositiveOrZero(message = "A quantidade efetiva não pode ser negativa")
     private BigDecimal quantidadeEfetiva;
 
     public Long getItemId() {

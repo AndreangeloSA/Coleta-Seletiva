@@ -46,7 +46,7 @@ public class Endereco {
 
     public void atualizar(EnderecoRequestDTO dados) {
         logradouro = dados.getLogradouro();
-        numero = dados.getNumero();
+        numero = dados.isSemNumero() ? null : dados.getNumero();
         bairro = dados.getBairro();
         municipio = dados.getMunicipio();
         uf = dados.getUf();
