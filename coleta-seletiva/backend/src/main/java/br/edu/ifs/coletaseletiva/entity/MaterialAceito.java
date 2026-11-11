@@ -17,5 +17,5 @@ public class MaterialAceito {
 
  public void atualizar(String o,BigDecimal l){observacoes=o;limitePorSolicitacao=l;}
 
- public Long getId(){return id;} public Long getPontoId(){return ponto.getId();} public Long getMaterialId(){return material.getId();} public String getNomeMaterial(){return material.getNome();} public String getUnidadeMedida(){return material.getUnidadeMedida();} public String getObservacoes(){return observacoes;} public BigDecimal getLimitePorSolicitacao(){return limitePorSolicitacao;}
+ public Long getId(){return id;} public Long getPontoId(){return ponto.getId();} public Long getMaterialId(){return material.getId();} public String getNomeMaterial(){return material.getNome();} public String getUnidadeMedida(){return material.getUnidadeMedida();} public String getOrientacaoPreparo(){return material.getOrientacaoPreparo();} public String getObservacoes(){return observacoes;} public BigDecimal getLimitePorSolicitacao(){return limitePorSolicitacao;}
 }
