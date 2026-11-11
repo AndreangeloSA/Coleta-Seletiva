@@ -6,6 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for coleta-seletiva" enabled="true">
+        <sourceOutputDir name="../coleta-seletiva/backend/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../coleta-seletiva/backend/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
         <module name="coleta-seletiva" />
       </profile>
     </annotationProcessing>
