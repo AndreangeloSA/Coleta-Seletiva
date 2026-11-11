@@ -28,7 +28,7 @@ Esta versão concentra-se no backend: cadastros, consulta de pontos, operadores,
 No terminal, entre na pasta `backend`:
 
 ```powershell
-cd .\coleta-seletiva\backend
+cd .\backend
 ```
 
 Inicie a aplicação no Windows:
@@ -97,6 +97,7 @@ As respostas de solicitação incluem `versao`. Toda operação de alteração d
 
 ```text
 coleta-seletiva/
+├── README.md
 ├── backend/
 │   ├── src/main/java/br/edu/ifs/coletaseletiva/
 │   │   ├── controller/
