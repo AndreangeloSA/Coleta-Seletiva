@@ -7,7 +7,7 @@ info:
     operadores e atendimento de solicitações de recolhimento. O protótipo não
     implementa autenticação; X-Usuario-Responsavel é apenas informativo.
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8081
 paths:
   /api/moradores:
     post:
