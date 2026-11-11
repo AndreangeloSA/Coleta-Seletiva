@@ -6,10 +6,10 @@ public class Material {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
  @Column(nullable=false,unique=true) private String nome;
 
- private String descricao;
+ @Column(length=2000) private String descricao;
 
  @Column(name="unidade_medida",nullable=false) private String unidadeMedida;
- @Column(name="orientacao_preparo") private String orientacaoPreparo;
+ @Column(name="orientacao_preparo", length=2000) private String orientacaoPreparo;
  @Column(nullable=false) private boolean ativo=true;
  public Material(){}
 

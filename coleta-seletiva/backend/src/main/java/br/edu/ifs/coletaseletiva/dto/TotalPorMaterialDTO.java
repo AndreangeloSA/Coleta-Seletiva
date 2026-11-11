@@ -7,13 +7,15 @@ public class TotalPorMaterialDTO {
     private Long materialId;
     private String nomeMaterial;
     private BigDecimal totalRecolhido;
+    private String unidade;
 
     public TotalPorMaterialDTO() {
     }
 
-    public TotalPorMaterialDTO(Long materialId, String nomeMaterial, BigDecimal totalRecolhido) {
+    public TotalPorMaterialDTO(Long materialId, String nomeMaterial, String unidade, BigDecimal totalRecolhido) {
         this.materialId = materialId;
         this.nomeMaterial = nomeMaterial;
+        this.unidade = unidade;
         this.totalRecolhido = totalRecolhido;
     }
 
@@ -32,6 +34,10 @@ public class TotalPorMaterialDTO {
     public void setNomeMaterial(String nomeMaterial) {
         this.nomeMaterial = nomeMaterial;
     }
+
+    public String getUnidade() { return unidade; }
+
+    public void setUnidade(String unidade) { this.unidade = unidade; }
 
     public BigDecimal getTotalRecolhido() {
         return totalRecolhido;

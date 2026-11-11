@@ -2,6 +2,8 @@ package br.edu.ifs.coletaseletiva.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.List;
 
@@ -12,6 +14,10 @@ public class ConcluirSolicitacaoRequestDTO {
     private List<ItemConclusaoDTO> itens;
 
     private String observacoes;
+
+    @NotNull(message = "A versão atual da solicitação é obrigatória.")
+    @PositiveOrZero(message = "A versão não pode ser negativa.")
+    private Long versao;
 
     public List<ItemConclusaoDTO> getItens() {
         return itens;
@@ -28,4 +34,7 @@ public class ConcluirSolicitacaoRequestDTO {
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
     }
+
+    public Long getVersao() { return versao; }
+    public void setVersao(Long versao) { this.versao = versao; }
 }

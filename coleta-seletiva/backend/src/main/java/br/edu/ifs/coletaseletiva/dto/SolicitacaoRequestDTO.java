@@ -28,6 +28,8 @@ public class SolicitacaoRequestDTO {
     @Valid
     private List<ItemSolicitacaoRequestDTO> itens;
 
+    private Long versao;
+
     public SolicitacaoRequestDTO() {}
 
     public Long getMoradorId() { return moradorId; }
@@ -44,4 +46,7 @@ public class SolicitacaoRequestDTO {
 
     public List<ItemSolicitacaoRequestDTO> getItens() { return itens; }
     public void setItens(List<ItemSolicitacaoRequestDTO> itens) { this.itens = itens; }
+
+    public Long getVersao() { return versao; }
+    public void setVersao(Long versao) { this.versao = versao; }
 }
