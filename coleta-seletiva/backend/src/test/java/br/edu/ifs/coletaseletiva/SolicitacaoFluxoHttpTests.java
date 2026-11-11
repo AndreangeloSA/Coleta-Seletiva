@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +49,7 @@ class SolicitacaoFluxoHttpTests {
         JsonNode solicitacao = json.readTree(criada.body());
         long id = solicitacao.get("id").asLong();
         long versao = solicitacao.get("versao").asLong();
-        assertEquals("SOLICITADA", solicitacao.get("situacao").asString());
+        assertEquals("SOLICITADA", solicitacao.get("situacao").asText());
         assertEquals(2, solicitacao.get("itens").size());
 
         // Iniciar sem agendar é uma transição proibida.
@@ -62,14 +62,14 @@ class SolicitacaoFluxoHttpTests {
                 "{\"dataAgendamento\":\"" + dataFutura + "\",\"versao\":" + versao + "}");
         assertEquals(200, agendada.statusCode(), agendada.body());
         JsonNode aposAgendamento = json.readTree(agendada.body());
-        assertEquals("AGENDADA", aposAgendamento.get("situacao").asString());
+        assertEquals("AGENDADA", aposAgendamento.get("situacao").asText());
         long versaoAgendada = aposAgendamento.get("versao").asLong();
 
         HttpResponse<String> iniciada = enviar("POST", "/api/solicitacoes/" + id + "/iniciar",
                 "{\"versao\":" + versaoAgendada + "}");
         assertEquals(200, iniciada.statusCode(), iniciada.body());
         JsonNode aposInicio = json.readTree(iniciada.body());
-        assertEquals("EM_RECOLHIMENTO", aposInicio.get("situacao").asString());
+        assertEquals("EM_RECOLHIMENTO", aposInicio.get("situacao").asText());
         long versaoEmExecucao = aposInicio.get("versao").asLong();
 
         long itemKg = itemIdPorMaterial(aposInicio, cenario.materialKgId());
@@ -80,7 +80,7 @@ class SolicitacaoFluxoHttpTests {
         HttpResponse<String> concluida = enviar("PATCH", "/api/solicitacoes/" + id + "/concluir", dadosConclusao);
         assertEquals(200, concluida.statusCode(), concluida.body());
         JsonNode resultado = json.readTree(concluida.body());
-        assertEquals("CONCLUIDA", resultado.get("situacao").asString());
+        assertEquals("CONCLUIDA", resultado.get("situacao").asText());
         assertEquals(0, itemPorMaterial(resultado, cenario.materialKgId()).get("quantidadeEfetiva").asInt());
         assertEquals(3, itemPorMaterial(resultado, cenario.materialPecaId()).get("quantidadeEfetiva").asInt());
 
@@ -102,7 +102,7 @@ class SolicitacaoFluxoHttpTests {
                 "{\"motivo\":\"Área fora do atendimento\",\"versao\":"
                         + criadaRecusa.get("versao").asLong() + "}");
         assertEquals(200, recusada.statusCode(), recusada.body());
-        assertEquals("RECUSADA", json.readTree(recusada.body()).get("situacao").asString());
+        assertEquals("RECUSADA", json.readTree(recusada.body()).get("situacao").asText());
 
         Cenario cenarioFrustrada = prepararCenario();
         JsonNode criada = json.readTree(criarSolicitacao(cenarioFrustrada).body());
@@ -125,14 +125,14 @@ class SolicitacaoFluxoHttpTests {
                         + execucao.get("versao").asLong() + "}");
         assertEquals(200, frustrada.statusCode(), frustrada.body());
         JsonNode retorno = json.readTree(frustrada.body());
-        assertEquals("AGENDADA", retorno.get("situacao").asString());
+        assertEquals("AGENDADA", retorno.get("situacao").asText());
 
         String novaData2 = OffsetDateTime.now(ZoneId.of("America/Maceio")).plusDays(5).withNano(0).toString();
         HttpResponse<String> reagendada = enviar("PATCH", "/api/solicitacoes/" + id + "/reagendar",
                 "{\"motivo\":\"Ajuste de rota\",\"novaDataHora\":\"" + novaData2
                         + "\",\"versao\":" + retorno.get("versao").asLong() + "}");
         assertEquals(200, reagendada.statusCode(), reagendada.body());
-        assertEquals("AGENDADA", json.readTree(reagendada.body()).get("situacao").asString());
+        assertEquals("AGENDADA", json.readTree(reagendada.body()).get("situacao").asText());
         assertEquals(5, json.readTree(enviar("GET", "/api/solicitacoes/" + id + "/historico", null).body()).size());
     }
 
@@ -213,7 +213,7 @@ class SolicitacaoFluxoHttpTests {
                 "{\"motivo\":\"Desistência do morador\",\"versao\":" + versao + "}");
         assertEquals(200, cancelada.statusCode(), cancelada.body());
         JsonNode resultado = json.readTree(cancelada.body());
-        assertEquals("CANCELADA", resultado.get("situacao").asString());
+        assertEquals("CANCELADA", resultado.get("situacao").asText());
 
         HttpResponse<String> tentativaReabrir = enviar("POST", "/api/solicitacoes/" + id + "/iniciar",
                 "{\"versao\":" + resultado.get("versao").asLong() + "}");
@@ -251,7 +251,7 @@ class SolicitacaoFluxoHttpTests {
                         + criada.get("versao").asLong() + "}");
         assertEquals(400, agendamentoInvalido.statusCode(), agendamentoInvalido.body());
         assertEquals("SOLICITADA", json.readTree(enviar("GET", "/api/solicitacoes/" + id, null).body())
-                .get("situacao").asString());
+                .get("situacao").asText());
 
         Cenario limite = prepararCenario();
         String acimaDoLimite = "{\"moradorId\":" + limite.moradorId()
@@ -299,7 +299,7 @@ class SolicitacaoFluxoHttpTests {
         HttpResponse<String> rejeitada = enviar("PATCH", "/api/solicitacoes/" + id + "/concluir", corpo);
         assertEquals(409, rejeitada.statusCode(), rejeitada.body());
         assertEquals("EM_RECOLHIMENTO", json.readTree(enviar("GET", "/api/solicitacoes/" + id, null).body())
-                .get("situacao").asString());
+                .get("situacao").asText());
     }
 
     @Test
@@ -367,7 +367,7 @@ class SolicitacaoFluxoHttpTests {
         HttpResponse<String> material = enviar("GET", "/api/materiais/" + cenario.materialKgId(), null);
         assertEquals(200, material.statusCode(), material.body());
         JsonNode materialAtual = json.readTree(material.body());
-        String atualizarUnidade = "{\"nome\":\"" + materialAtual.get("nome").asString()
+        String atualizarUnidade = "{\"nome\":\"" + materialAtual.get("nome").asText()
                 + "\",\"descricao\":null,\"unidadeMedida\":\"ton\",\"orientacaoPreparo\":null}";
         HttpResponse<String> atualizado = enviar("PUT", "/api/materiais/" + cenario.materialKgId(), atualizarUnidade);
         assertEquals(200, atualizado.statusCode(), atualizado.body());
@@ -382,7 +382,7 @@ class SolicitacaoFluxoHttpTests {
         for (JsonNode total : totais) {
             if (total.get("materialId").asLong() == cenario.materialKgId()) {
                 encontrouUnidadeHistorica = true;
-                assertEquals("kg", total.get("unidade").asString());
+                assertEquals("kg", total.get("unidade").asText());
                 assertEquals(2.5, total.get("totalRecolhido").decimalValue().doubleValue(), 0.0001);
             }
         }

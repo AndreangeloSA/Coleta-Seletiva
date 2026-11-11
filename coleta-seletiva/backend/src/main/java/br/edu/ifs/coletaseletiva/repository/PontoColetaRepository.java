@@ -16,9 +16,9 @@ public interface PontoColetaRepository extends JpaRepository<PontoColeta, Long> 
     @Query(value = """
             select p from PontoColeta p
             where p.ativo = true
-              and (:nome is null or lower(p.nome) like lower(concat('%', :nome, '%')))
-              and (:municipio is null or lower(p.endereco) like lower(concat('%', :municipio, '%')))
-              and (:bairro is null or lower(p.endereco) like lower(concat('%', :bairro, '%')))
+              and (:nome is null or lower(p.nome) like lower(concat('%', cast(:nome as string), '%')))
+              and (:municipio is null or lower(p.endereco) like lower(concat('%', cast(:municipio as string), '%')))
+              and (:bairro is null or lower(p.endereco) like lower(concat('%', cast(:bairro as string), '%')))
               and (:materialId is null or exists (
                     select ma.id from MaterialAceito ma
                     where ma.ponto = p and ma.material.ativo = true and ma.material.id = :materialId
@@ -26,15 +26,15 @@ public interface PontoColetaRepository extends JpaRepository<PontoColeta, Long> 
               and (:material is null or exists (
                     select ma.id from MaterialAceito ma
                     where ma.ponto = p and ma.material.ativo = true
-                      and lower(ma.material.nome) like lower(concat('%', :material, '%'))
+                      and lower(ma.material.nome) like lower(concat('%', cast(:material as string), '%'))
               ))
             """,
             countQuery = """
             select count(p) from PontoColeta p
             where p.ativo = true
-              and (:nome is null or lower(p.nome) like lower(concat('%', :nome, '%')))
-              and (:municipio is null or lower(p.endereco) like lower(concat('%', :municipio, '%')))
-              and (:bairro is null or lower(p.endereco) like lower(concat('%', :bairro, '%')))
+              and (:nome is null or lower(p.nome) like lower(concat('%', cast(:nome as string), '%')))
+              and (:municipio is null or lower(p.endereco) like lower(concat('%', cast(:municipio as string), '%')))
+              and (:bairro is null or lower(p.endereco) like lower(concat('%', cast(:bairro as string), '%')))
               and (:materialId is null or exists (
                     select ma.id from MaterialAceito ma
                     where ma.ponto = p and ma.material.ativo = true and ma.material.id = :materialId
@@ -42,7 +42,7 @@ public interface PontoColetaRepository extends JpaRepository<PontoColeta, Long> 
               and (:material is null or exists (
                     select ma.id from MaterialAceito ma
                     where ma.ponto = p and ma.material.ativo = true
-                      and lower(ma.material.nome) like lower(concat('%', :material, '%'))
+                      and lower(ma.material.nome) like lower(concat('%', cast(:material as string), '%'))
               ))
             """)
     Page<PontoColeta> pesquisarAtivos(

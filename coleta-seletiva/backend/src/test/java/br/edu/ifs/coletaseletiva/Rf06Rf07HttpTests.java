@@ -8,8 +8,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,9 +61,9 @@ class Rf06Rf07HttpTests {
         JsonNode pagina = json.readTree(resposta.body());
         assertEquals(1, pagina.get("content").size());
         JsonNode pontoRetornado = pagina.get("content").get(0);
-        assertEquals(nomePonto, pontoRetornado.get("nome").asString());
-        assertEquals("Papel-" + sufixo, pontoRetornado.get("materiaisAceitos").get(0).get("nomeMaterial").asString());
-        assertEquals("Manter seco", pontoRetornado.get("materiaisAceitos").get(0).get("orientacaoPreparo").asString());
+        assertEquals(nomePonto, pontoRetornado.get("nome").asText());
+        assertEquals("Papel-" + sufixo, pontoRetornado.get("materiaisAceitos").get(0).get("nomeMaterial").asText());
+        assertEquals("Manter seco", pontoRetornado.get("materiaisAceitos").get(0).get("orientacaoPreparo").asText());
 
         assertEquals(400, enviar("GET", "/api/pontos?tamanho=101", null).statusCode());
     }

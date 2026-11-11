@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -53,7 +53,7 @@ class EnderecoHttpTests {
         assertEquals(200, lista.statusCode());
         var itens = json.readTree(lista.body());
         assertEquals(2, itens.size());
-        assertEquals("Rua B", itens.get(0).get("logradouro").asString());
+        assertEquals("Rua B", itens.get(0).get("logradouro").asText());
         assertEquals(endereco.get("moradorId"), itens.get(0).get("moradorId"));
         assertEquals("[]", enviar("GET", outro, "").body());
         String ausente = "/api/moradores/-1/enderecos";

@@ -25,8 +25,8 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
             where (:moradorId is null or s.morador.id = :moradorId)
               and (:pontoId is null or s.pontoId = :pontoId)
               and (:situacao is null or s.situacao = :situacao)
-              and (:inicio is null or s.dataCriacao >= :inicio)
-              and (:fim is null or s.dataCriacao <= :fim)
+              and (cast(:inicio as string) is null or s.dataCriacao >= :inicio)
+              and (cast(:fim as string) is null or s.dataCriacao <= :fim)
             """)
     Page<Solicitacao> findComFiltros(@Param("moradorId") Long moradorId,
                                      @Param("pontoId") Long pontoId,
@@ -42,5 +42,5 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
             group by s.situacao
             """)
     List<TotalPorStatusDTO> contarPorStatusNoPeriodo(@Param("inicio") OffsetDateTime inicio,
-                                                       @Param("fim") OffsetDateTime fim);
+                                                     @Param("fim") OffsetDateTime fim);
 }
