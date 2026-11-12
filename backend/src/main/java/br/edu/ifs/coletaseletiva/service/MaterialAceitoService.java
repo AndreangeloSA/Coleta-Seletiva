@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.MaterialAceitoRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.MaterialAceito;
 import br.edu.ifs.coletaseletiva.repository.MaterialAceitoRepository;
@@ -48,15 +49,13 @@ public class MaterialAceitoService {
     }
 
     @Transactional(readOnly = true)
-    public List<MaterialAceito> listarDoPonto(Long pontoId) {
+    public List<MaterialAceito> listarDoPonto(Long pontoId, Pageable pageable) {
         pontos.buscar(pontoId);
-        return vinculos.findByPonto_Id(pontoId);
+        return vinculos.findByPonto_Id(pontoId, pageable);
     }
 
     public void remover(Long pontoId, Long materialId) {
-        MaterialAceito vinculo = vinculos.findByPonto_Id(pontoId).stream()
-                .filter(item -> item.getMaterialId().equals(materialId))
-                .findFirst()
+        MaterialAceito vinculo = vinculos.findByPonto_IdAndMaterial_Id(pontoId, materialId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vínculo não encontrado"));
         List<SituacaoSolicitacao> abertas = List.of(SituacaoSolicitacao.SOLICITADA,
                 SituacaoSolicitacao.AGENDADA, SituacaoSolicitacao.EM_RECOLHIMENTO);

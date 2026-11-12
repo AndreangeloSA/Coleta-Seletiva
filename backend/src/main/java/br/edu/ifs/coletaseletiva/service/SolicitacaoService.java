@@ -300,11 +300,11 @@ public class SolicitacaoService {
     }
 
     @Transactional(readOnly = true)
-    public List<HistoricoResponseDTO> buscarHistorico(Long solicitacaoId) {
+    public List<HistoricoResponseDTO> buscarHistorico(Long solicitacaoId, Pageable pageable) {
         if (!solicitacaoRepository.existsById(solicitacaoId)) {
             throw erro(HttpStatus.NOT_FOUND, "Solicitação não encontrada.");
         }
-        return historicoRepository.findBySolicitacaoIdOrderByDataHoraAsc(solicitacaoId).stream()
+        return historicoRepository.findBySolicitacaoIdOrderByDataHoraAsc(solicitacaoId, pageable).stream()
                 .map(h -> {
                     HistoricoResponseDTO dto = new HistoricoResponseDTO();
                     dto.setId(h.getId());

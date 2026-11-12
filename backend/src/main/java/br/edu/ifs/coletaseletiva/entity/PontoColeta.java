@@ -7,6 +7,14 @@ public class PontoColeta {
  @Column(nullable=false) private String nome;
  @Column(nullable=false, length = 500) private String endereco;
  private String contato;
+ private String municipio;
+ private String bairro;
+ public String getMunicipio(){return municipio;}
+ public String getBairro(){return bairro;}
+ public void atualizarLocalidade(String municipio,String bairro){
+     this.municipio=municipio;
+     this.bairro=bairro;
+ }
 
  @Column(name="horarios_funcionamento", length = 500) private String horariosFuncionamento;
  @Column(nullable=false) private boolean ativo=true;

@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.EnderecoRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.Endereco;
 import br.edu.ifs.coletaseletiva.repository.EnderecoRepository;
@@ -25,9 +26,9 @@ public class EnderecoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Endereco> listar(Long moradorId) {
+    public List<Endereco> listar(Long moradorId, Pageable pageable) {
         moradores.consultar(moradorId);
-        return enderecos.findByMorador_IdOrderById(moradorId);
+        return enderecos.findByMorador_IdOrderById(moradorId, pageable);
     }
 
     public Endereco atualizar(Long id, EnderecoRequestDTO dados) {

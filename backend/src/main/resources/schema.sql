@@ -235,3 +235,6 @@ ALTER TABLE item_solicitacao ADD CONSTRAINT ck_item_quantidade_estimada
 ALTER TABLE item_solicitacao DROP CONSTRAINT IF EXISTS ck_item_quantidade_efetiva;
 ALTER TABLE item_solicitacao ADD CONSTRAINT ck_item_quantidade_efetiva
     CHECK (quantidade_efetiva IS NULL OR quantidade_efetiva >= 0);
+
+ALTER TABLE ponto_coleta ADD COLUMN IF NOT EXISTS municipio VARCHAR(255), ADD COLUMN IF NOT EXISTS bairro VARCHAR(255);
+CREATE INDEX IF NOT EXISTS ix_solicitacao_ponto_data ON solicitacao(ponto_id, data_criacao);

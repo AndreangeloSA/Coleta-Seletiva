@@ -125,6 +125,7 @@ public class PontoColetaService {
     private PontoColeta salvar(PontoColeta ponto, PontoRequestDTO dados) {
         ponto.atualizar(dados.nome(), dados.endereco(), dados.contato(),
                 dados.horariosFuncionamento(), dados.ativo(), dados.recolhimentoDomiciliar());
+        ponto.atualizarLocalidade(dados.municipio(), dados.bairro());
         return pontos.save(ponto);
     }
 

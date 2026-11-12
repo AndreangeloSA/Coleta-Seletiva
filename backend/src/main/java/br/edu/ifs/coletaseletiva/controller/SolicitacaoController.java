@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.controller;
 
+import org.springframework.data.web.PageableDefault;
 import br.edu.ifs.coletaseletiva.dto.*;
 import br.edu.ifs.coletaseletiva.enums.SituacaoSolicitacao;
 import br.edu.ifs.coletaseletiva.service.SolicitacaoService;
@@ -102,8 +103,8 @@ public class SolicitacaoController {
     }
 
     @GetMapping("/{id}/historico")
-    public ResponseEntity<List<HistoricoResponseDTO>> buscarHistorico(@PathVariable Long id) {
-        return ResponseEntity.ok(solicitacaoService.buscarHistorico(id));
+    public ResponseEntity<List<HistoricoResponseDTO>> buscarHistorico(@PathVariable Long id, @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(solicitacaoService.buscarHistorico(id, pageable));
     }
 
     @GetMapping("/resumo-gerencial")

@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.repository;
 
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.entity.MaterialAceito;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,9 +9,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface MaterialAceitoRepository extends JpaRepository<MaterialAceito, Long> {
 
+    java.util.Optional<MaterialAceito> findByPonto_IdAndMaterial_Id(Long pontoId, Long materialId);
+
     boolean existsByPonto_IdAndMaterial_Id(Long pontoId, Long materialId);
 
-    List<MaterialAceito> findByPonto_Id(Long pontoId);
+    List<MaterialAceito> findByPonto_Id(Long pontoId, Pageable pageable);
 
     @Query("""
             select ma from MaterialAceito ma

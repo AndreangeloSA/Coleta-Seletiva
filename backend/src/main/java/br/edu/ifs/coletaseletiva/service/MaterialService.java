@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.MaterialRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.Material;
 import br.edu.ifs.coletaseletiva.repository.MaterialRepository;
@@ -28,8 +29,8 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public List<Material> listar() {
-        return materiais.findAll();
+    public List<Material> listar(Pageable pageable) {
+        return materiais.findAll(pageable).getContent();
     }
 
     @Transactional(readOnly = true)

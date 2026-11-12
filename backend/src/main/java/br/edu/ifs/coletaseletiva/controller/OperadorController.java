@@ -1,5 +1,7 @@
 package br.edu.ifs.coletaseletiva.controller;
 
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.OperadorPontoResponseDTO;
 import br.edu.ifs.coletaseletiva.dto.OperadorRequestDTO;
 import br.edu.ifs.coletaseletiva.dto.OperadorResponseDTO;
@@ -36,8 +38,8 @@ public class OperadorController {
     }
 
     @GetMapping
-    public List<OperadorResponseDTO> listar() {
-        return operadores.listar().stream().map(OperadorResponseDTO::new).toList();
+    public List<OperadorResponseDTO> listar(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return operadores.listar(pageable).stream().map(OperadorResponseDTO::new).toList();
     }
 
     @GetMapping("/{id}")
@@ -59,8 +61,8 @@ public class OperadorController {
     }
 
     @GetMapping("/{operadorId}/pontos")
-    public List<OperadorPontoResponseDTO> listarPontos(@PathVariable Long operadorId) {
-        return operadores.listarPontosVinculados(operadorId).stream()
+    public List<OperadorPontoResponseDTO> listarPontos(@PathVariable Long operadorId, @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return operadores.listarPontosVinculados(operadorId, pageable).stream()
                 .map(OperadorPontoResponseDTO::new).toList();
     }
 

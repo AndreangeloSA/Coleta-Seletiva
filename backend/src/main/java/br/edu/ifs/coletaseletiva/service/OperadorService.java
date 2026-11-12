@@ -1,5 +1,6 @@
 package br.edu.ifs.coletaseletiva.service;
 
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.OperadorRequestDTO;
 import br.edu.ifs.coletaseletiva.entity.Operador;
 import br.edu.ifs.coletaseletiva.entity.OperadorPonto;
@@ -40,8 +41,8 @@ public class OperadorService {
     }
 
     @Transactional(readOnly = true)
-    public List<Operador> listar() {
-        return operadores.findAll();
+    public List<Operador> listar(Pageable pageable) {
+        return operadores.findAll(pageable).getContent();
     }
 
     @Transactional(readOnly = true)
@@ -72,9 +73,9 @@ public class OperadorService {
     }
 
     @Transactional(readOnly = true)
-    public List<OperadorPonto> listarPontosVinculados(Long operadorId) {
+    public List<OperadorPonto> listarPontosVinculados(Long operadorId, Pageable pageable) {
         buscar(operadorId);
-        return vinculos.findByOperador_IdOrderByPonto_Nome(operadorId);
+        return vinculos.findByOperador_IdOrderByPonto_Nome(operadorId, pageable);
     }
 
     public void desvincularPonto(Long operadorId, Long pontoId) {

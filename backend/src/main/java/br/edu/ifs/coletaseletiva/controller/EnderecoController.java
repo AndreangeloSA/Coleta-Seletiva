@@ -1,5 +1,7 @@
 package br.edu.ifs.coletaseletiva.controller;
 
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.EnderecoRequestDTO;
 import br.edu.ifs.coletaseletiva.dto.EnderecoResponseDTO;
 import br.edu.ifs.coletaseletiva.service.EnderecoService;
@@ -24,8 +26,8 @@ public class EnderecoController {
     }
 
     @GetMapping("/moradores/{moradorId}/enderecos")
-    public List<EnderecoResponseDTO> listar(@PathVariable Long moradorId) {
-        return enderecos.listar(moradorId).stream().map(EnderecoResponseDTO::new).toList();
+    public List<EnderecoResponseDTO> listar(@PathVariable Long moradorId, @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return enderecos.listar(moradorId, pageable).stream().map(EnderecoResponseDTO::new).toList();
     }
 
     @PutMapping("/enderecos/{id}")

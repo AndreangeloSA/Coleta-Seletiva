@@ -1,5 +1,7 @@
 package br.edu.ifs.coletaseletiva.controller;
 
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Pageable;
 import br.edu.ifs.coletaseletiva.dto.*;
 import br.edu.ifs.coletaseletiva.service.MaterialAceitoService;
 import br.edu.ifs.coletaseletiva.service.MaterialService;
@@ -31,8 +33,8 @@ public class CatalogoController {
     }
 
     @GetMapping("/materiais")
-    public List<MaterialResponseDTO> listarMateriais() {
-        return materiais.listar().stream().map(MaterialResponseDTO::new).toList();
+    public List<MaterialResponseDTO> listarMateriais(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return materiais.listar(pageable).stream().map(MaterialResponseDTO::new).toList();
     }
 
     @GetMapping("/materiais/{id}")
@@ -94,8 +96,8 @@ public class CatalogoController {
     }
 
     @GetMapping("/pontos/{pontoId}/materiais")
-    public List<MaterialAceitoResponseDTO> listarVinculos(@PathVariable Long pontoId) {
-        return vinculos.listarDoPonto(pontoId).stream().map(MaterialAceitoResponseDTO::new).toList();
+    public List<MaterialAceitoResponseDTO> listarVinculos(@PathVariable Long pontoId, @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return vinculos.listarDoPonto(pontoId, pageable).stream().map(MaterialAceitoResponseDTO::new).toList();
     }
 
     @DeleteMapping("/pontos/{pontoId}/materiais/{materialId}")
