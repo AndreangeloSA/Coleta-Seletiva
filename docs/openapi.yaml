@@ -1,0 +1,653 @@
+openapi: 3.1.0
+info:
+  title: API do Sistema de Coleta Seletiva
+  version: 1.0.0
+  description: >-
+    API REST acadêmica para cadastro de moradores, endereços, materiais, pontos,
+    operadores e atendimento de solicitações de recolhimento. O protótipo não
+    implementa autenticação; X-Usuario-Responsavel é apenas informativo.
+servers:
+  - url: http://localhost:8081
+paths:
+  /api/moradores:
+    post:
+      summary: Cadastrar morador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoradorRequest' }
+      responses:
+        '201': { description: Morador criado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/moradores/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar morador
+      responses:
+        '200': { description: Morador encontrado }
+        '404': { $ref: '#/components/responses/Erro' }
+    put:
+      summary: Atualizar morador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoradorRequest' }
+      responses:
+        '200': { description: Morador atualizado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/moradores/{moradorId}/enderecos:
+    parameters:
+      - name: moradorId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    post:
+      summary: Cadastrar endereço do morador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EnderecoRequest' }
+      responses:
+        '201': { description: Endereço cadastrado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Listar endereços do morador
+      responses:
+        '200': { description: Lista de endereços }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/enderecos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    put:
+      summary: Atualizar endereço
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EnderecoRequest' }
+      responses:
+        '200': { description: Endereço atualizado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/materiais:
+    post:
+      summary: Cadastrar material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MaterialRequest' }
+      responses:
+        '201': { description: Material criado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Listar materiais
+      responses:
+        '200': { description: Lista de materiais }
+  /api/materiais/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar material
+      responses:
+        '200': { description: Material encontrado }
+        '404': { $ref: '#/components/responses/Erro' }
+    put:
+      summary: Atualizar material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MaterialRequest' }
+      responses:
+        '200': { description: Material atualizado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/materiais/{id}/inativacao:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Inativar material
+      responses:
+        '200': { description: Material inativado }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/pontos:
+    get:
+      summary: Pesquisar pontos ativos
+      parameters:
+        - { name: nome, in: query, schema: { type: string } }
+        - { name: municipio, in: query, schema: { type: string } }
+        - { name: bairro, in: query, schema: { type: string } }
+        - { name: materialId, in: query, schema: { type: integer, format: int64 } }
+        - { name: material, in: query, schema: { type: string } }
+        - { name: pagina, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: tamanho, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200': { description: Página de pontos e materiais aceitos }
+        '400': { $ref: '#/components/responses/Erro' }
+    post:
+      summary: Cadastrar ponto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PontoRequest' }
+      responses:
+        '201': { description: Ponto criado }
+        '400': { $ref: '#/components/responses/Erro' }
+  /api/pontos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar ponto e materiais aceitos
+      responses:
+        '200': { description: Ponto encontrado }
+        '404': { $ref: '#/components/responses/Erro' }
+    put:
+      summary: Atualizar ponto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PontoRequest' }
+      responses:
+        '200': { description: Ponto atualizado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/pontos/{id}/inativacao:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Inativar ponto sem solicitações abertas
+      responses:
+        '200': { description: Ponto inativado }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/pontos/{pontoId}/materiais/{materialId}:
+    parameters:
+      - { name: pontoId, in: path, required: true, schema: { type: integer, format: int64 } }
+      - { name: materialId, in: path, required: true, schema: { type: integer, format: int64 } }
+    post:
+      summary: Vincular material ao ponto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                observacoes: { type: string, maxLength: 255 }
+                limitePorSolicitacao: { type: number, exclusiveMinimum: 0 }
+      responses:
+        '201': { description: Vínculo criado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+    delete:
+      summary: Remover vínculo sem solicitações abertas afetadas
+      responses:
+        '204': { description: Vínculo removido }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/pontos/{pontoId}/materiais:
+    parameters:
+      - { name: pontoId, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Listar materiais vinculados ao ponto
+      responses:
+        '200': { description: Lista de materiais aceitos }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/operadores:
+    post:
+      summary: Cadastrar operador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OperadorRequest' }
+      responses:
+        '201': { description: Operador criado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Listar operadores
+      responses:
+        '200': { description: Lista de operadores }
+  /api/operadores/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar operador
+      responses:
+        '200': { description: Operador encontrado }
+        '404': { $ref: '#/components/responses/Erro' }
+    put:
+      summary: Atualizar operador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OperadorRequest' }
+      responses:
+        '200': { description: Operador atualizado }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/operadores/{operadorId}/pontos:
+    parameters:
+      - { name: operadorId, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Listar pontos vinculados ao operador
+      responses:
+        '200': { description: Lista de vínculos }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/operadores/{operadorId}/pontos/{pontoId}:
+    parameters:
+      - { name: operadorId, in: path, required: true, schema: { type: integer, format: int64 } }
+      - { name: pontoId, in: path, required: true, schema: { type: integer, format: int64 } }
+    post:
+      summary: Vincular operador a ponto
+      responses:
+        '201': { description: Vínculo criado }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+    delete:
+      summary: Desvincular operador de ponto
+      responses:
+        '204': { description: Vínculo removido }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes:
+    post:
+      summary: Criar solicitação com itens e histórico inicial (RF08)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitacaoRequest' }
+      responses:
+        '201':
+          description: Solicitação criada na situação SOLICITADA
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Solicitacao' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+    get:
+      summary: Consultar solicitações com filtros e paginação (RF09)
+      parameters:
+        - name: moradorId
+          in: query
+          description: Filtro demonstrativo do morador; não é autenticação.
+          schema: { type: integer, format: int64, minimum: 1 }
+        - name: pontoId
+          in: query
+          description: Filtro demonstrativo do ponto/operador; não é autenticação.
+          schema: { type: integer, format: int64, minimum: 1 }
+        - { name: situacao, in: query, schema: { $ref: '#/components/schemas/Situacao' } }
+        - { name: inicio, in: query, schema: { type: string, format: date-time } }
+        - { name: fim, in: query, schema: { type: string, format: date-time } }
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200': { description: Página de solicitações }
+        '400': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Consultar solicitação por ID
+      responses:
+        '200':
+          description: Solicitação e itens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Solicitacao' }
+        '404': { $ref: '#/components/responses/Erro' }
+    put:
+      summary: Corrigir endereço e itens antes do agendamento (RN04)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SolicitacaoRequest'
+                - type: object
+                  required: [versao]
+                  properties:
+                    versao: { type: integer, format: int64, minimum: 0 }
+      responses:
+        '200': { description: Solicitação corrigida }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/agendar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Aceitar e agendar solicitação (RF10)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataAgendamento, versao]
+              properties:
+                dataAgendamento: { type: string, format: date-time, description: Data futura com offset. }
+                versao: { type: integer, format: int64, minimum: 0 }
+      responses:
+        '200': { description: Solicitação agendada }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/recusar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Recusar solicitação solicitada com justificativa (RF11)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [motivo, versao]
+              properties:
+                motivo: { type: string, minLength: 1, maxLength: 255 }
+                versao: { type: integer, format: int64, minimum: 0 }
+      responses:
+        '200': { description: Solicitação recusada }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/cancelar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Cancelar solicitação solicitada ou agendada (RF12)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [motivo, versao]
+              properties:
+                motivo: { type: string, minLength: 1 }
+                versao: { type: integer, format: int64, minimum: 0 }
+      responses:
+        '200': { description: Solicitação cancelada }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/iniciar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Iniciar recolhimento agendado (RF13)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versao]
+              properties:
+                versao: { type: integer, format: int64, minimum: 0 }
+      responses:
+        '200': { description: Situação EM_RECOLHIMENTO }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/concluir:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Registrar quantidades efetivas e concluir (RF13)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConclusaoRequest' }
+      responses:
+        '200': { description: Solicitação concluída }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/frustrada:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Registrar tentativa sem sucesso e reagendar (RF14)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TentativaFrustradaRequest' }
+      responses:
+        '200': { description: Solicitação voltou para AGENDADA }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/reagendar:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Reagendar solicitação já agendada (RF14)
+      parameters:
+        - $ref: '#/components/parameters/Responsavel'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReagendarRequest' }
+      responses:
+        '200': { description: Agendamento atualizado e registrado no histórico }
+        '400': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/{id}/historico:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      summary: Consultar histórico de alterações
+      responses:
+        '200': { description: Histórico cronológico }
+        '404': { $ref: '#/components/responses/Erro' }
+  /api/solicitacoes/resumo-gerencial:
+    get:
+      summary: Consultar resumo por situação e quantidades por material (RF15)
+      parameters:
+        - { name: inicio, in: query, required: true, schema: { type: string, format: date-time } }
+        - { name: fim, in: query, required: true, schema: { type: string, format: date-time } }
+      responses:
+        '200': { description: Indicadores do período }
+        '400': { $ref: '#/components/responses/Erro' }
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    Responsavel:
+      name: X-Usuario-Responsavel
+      in: header
+      required: false
+      description: Texto gravado no histórico. Não é autenticação.
+      schema: { type: string, default: 'Operador (protótipo)' }
+  responses:
+    Erro:
+      description: Resposta padronizada de erro
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+  schemas:
+    Situacao:
+      type: string
+      enum: [SOLICITADA, AGENDADA, EM_RECOLHIMENTO, CONCLUIDA, RECUSADA, CANCELADA]
+    MoradorRequest:
+      type: object
+      required: [nome, email]
+      properties:
+        nome: { type: string, maxLength: 255 }
+        email: { type: string, format: email, maxLength: 255 }
+        telefone: { type: string, maxLength: 255 }
+    EnderecoRequest:
+      type: object
+      required: [logradouro, bairro, municipio, uf, cep]
+      properties:
+        logradouro: { type: string, maxLength: 255 }
+        numero: { type: string, maxLength: 255, nullable: true }
+        semNumero: { type: boolean, default: false }
+        bairro: { type: string, maxLength: 255 }
+        municipio: { type: string, maxLength: 255 }
+        uf: { type: string, pattern: '^[A-Z]{2}$' }
+        cep: { type: string, pattern: '^[0-9]{5}-?[0-9]{3}$' }
+        complemento: { type: string, maxLength: 255 }
+    MaterialRequest:
+      type: object
+      required: [nome, unidadeMedida]
+      properties:
+        nome: { type: string, maxLength: 255 }
+        descricao: { type: string, maxLength: 2000 }
+        unidadeMedida: { type: string, maxLength: 50 }
+        orientacaoPreparo: { type: string, maxLength: 2000 }
+    PontoRequest:
+      type: object
+      required: [nome, endereco]
+      properties:
+        nome: { type: string, maxLength: 255 }
+        endereco: { type: string, maxLength: 500 }
+        municipio: { type: string, maxLength: 255 }
+        bairro: { type: string, maxLength: 255 }
+        contato: { type: string, maxLength: 255 }
+        horariosFuncionamento: { type: string, maxLength: 500 }
+        ativo: { type: boolean, nullable: true }
+        recolhimentoDomiciliar: { type: boolean }
+    OperadorRequest:
+      type: object
+      required: [nome, email]
+      properties:
+        nome: { type: string, maxLength: 255 }
+        email: { type: string, format: email, maxLength: 255 }
+    ItemSolicitacaoRequest:
+      type: object
+      required: [materialId, unidade, quantidadeEstimada]
+      properties:
+        materialId: { type: integer, format: int64, minimum: 1 }
+        unidade: { type: string, maxLength: 50 }
+        quantidadeEstimada: { type: number, exclusiveMinimum: 0 }
+    SolicitacaoRequest:
+      type: object
+      required: [moradorId, enderecoId, pontoId, itens]
+      properties:
+        moradorId: { type: integer, format: int64, minimum: 1 }
+        enderecoId: { type: integer, format: int64, minimum: 1 }
+        pontoId: { type: integer, format: int64, minimum: 1 }
+        observacoes: { type: string, maxLength: 1000 }
+        itens:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/ItemSolicitacaoRequest' }
+        versao: { type: integer, format: int64, minimum: 0, description: Obrigatória somente na correção PUT. }
+    Solicitacao:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        protocolo: { type: string }
+        moradorId: { type: integer, format: int64 }
+        pontoId: { type: integer, format: int64 }
+        situacao: { $ref: '#/components/schemas/Situacao' }
+        dataCriacao: { type: string, format: date-time }
+        dataAgendamento: { type: string, format: date-time, nullable: true }
+        dataAtualizacao: { type: string, format: date-time, nullable: true }
+        versao: { type: integer, format: int64 }
+        itens: { type: array, items: { type: object } }
+    ConclusaoRequest:
+      type: object
+      required: [versao, itens]
+      properties:
+        versao: { type: integer, format: int64, minimum: 0 }
+        observacoes: { type: string }
+        itens:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [itemId, quantidadeEfetiva]
+            properties:
+              itemId: { type: integer, format: int64, minimum: 1 }
+              quantidadeEfetiva: { type: number, minimum: 0 }
+    TentativaFrustradaRequest:
+      type: object
+      required: [motivo, novaDataHora, versao]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 255 }
+        dadosTentativa: { type: string, maxLength: 255 }
+        novaDataHora: { type: string, format: date-time }
+        versao: { type: integer, format: int64, minimum: 0 }
+    ReagendarRequest:
+      type: object
+      required: [motivo, novaDataHora, versao]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 255 }
+        novaDataHora: { type: string, format: date-time }
+        versao: { type: integer, format: int64, minimum: 0 }
+    Erro:
+      type: object
+      properties:
+        dataHora: { type: string, format: date-time }
+        status: { type: integer }
+        codigo: { type: string }
+        mensagem: { type: string }
+        erros:
+          type: array
+          items:
+            type: object
+            properties:
+              campo: { type: string }
+              mensagem: { type: string }
