@@ -59,6 +59,9 @@ paths:
         '400': { $ref: '#/components/responses/Erro' }
         '404': { $ref: '#/components/responses/Erro' }
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Listar endereços do morador
       responses:
         '200': { description: Lista de endereços }
@@ -90,6 +93,9 @@ paths:
         '400': { $ref: '#/components/responses/Erro' }
         '409': { $ref: '#/components/responses/Erro' }
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Listar materiais
       responses:
         '200': { description: Lista de materiais }
@@ -204,6 +210,9 @@ paths:
     parameters:
       - { name: pontoId, in: path, required: true, schema: { type: integer, format: int64 } }
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Listar materiais vinculados ao ponto
       responses:
         '200': { description: Lista de materiais aceitos }
@@ -221,6 +230,9 @@ paths:
         '400': { $ref: '#/components/responses/Erro' }
         '409': { $ref: '#/components/responses/Erro' }
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Listar operadores
       responses:
         '200': { description: Lista de operadores }
@@ -248,6 +260,9 @@ paths:
     parameters:
       - { name: operadorId, in: path, required: true, schema: { type: integer, format: int64 } }
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Listar pontos vinculados ao operador
       responses:
         '200': { description: Lista de vínculos }
@@ -475,6 +490,9 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Id'
     get:
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       summary: Consultar histórico de alterações
       responses:
         '200': { description: Histórico cronológico }
@@ -544,6 +562,8 @@ components:
       properties:
         nome: { type: string, maxLength: 255 }
         endereco: { type: string, maxLength: 500 }
+        municipio: { type: string, maxLength: 255 }
+        bairro: { type: string, maxLength: 255 }
         contato: { type: string, maxLength: 255 }
         horariosFuncionamento: { type: string, maxLength: 500 }
         ativo: { type: boolean, nullable: true }

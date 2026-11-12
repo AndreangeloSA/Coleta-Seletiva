@@ -1,13 +1,13 @@
 # Guia da API — Sistema de Coleta Seletiva
 
-Base local: `http://localhost:8080`. Todas as operações usam JSON. A especificação OpenAPI complementar está em `docs/openapi.yaml`.
+Base local: `http://localhost:8081`. Todas as operações usam JSON. A especificação OpenAPI complementar está em `docs/openapi.yaml`.
 
 ## Regras gerais
 
 - Criações retornam HTTP 201; consultas e alterações bem-sucedidas retornam HTTP 200; exclusão de vínculo retorna HTTP 204.
 - Dados inválidos retornam HTTP 400; registro inexistente retorna HTTP 404; conflito de regra, integridade ou versão retorna HTTP 409.
 - Erros seguem o formato `{ "dataHora", "status", "codigo", "mensagem", "erros" }`. Cada item em `erros` contém `campo` e `mensagem`. A resposta não expõe stack trace.
-- Listagens de pontos e solicitações limitam o tamanho da página a 100.
+- As listagens têm limite de 100 registros por página. Pontos usam `pagina` e `tamanho`. Solicitações, materiais, endereços, operadores, vínculos e histórico usam `page` e `size`. A primeira página é 0. Pontos e solicitações retornam páginas com `content`; as demais listagens retornam arrays.
 - Datas de eventos usam ISO 8601 com offset, por exemplo `2026-11-20T10:30:00-03:00`.
 
 ## Cadastro e catálogo
